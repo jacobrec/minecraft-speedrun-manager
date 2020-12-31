@@ -9,17 +9,8 @@
 ;; Views
 (def server-base-address ".woosaree.xyz")
 (def httpserver-base-address "http://localhost:8000/")
-(def data {:servers [{:address "speedrun" :starttime false :completed false :id 3234
-                      :people ["jacobreckhard" "petelliott332"]}
-                     {:address "speedrun1" :starttime 1609363090 :completed false :id 2305
-                      :people ["jacobreckhard" "petelliott332"]}
-                     {:address "speedrun" :starttime 1609463090 :completed 1609473090 :id 5644
-                      :people ["jacobreckhard" "petelliott332"]}]})
 
-(defn update-data []
-  (go (let [response (<! (http/get (str httpserver-base-address "client/data")))])
-    (prn (:status response))
-    (prn (:body response))))
+(def callback nil)
 
 
 (defn doublezero [num]
@@ -37,17 +28,31 @@
 
 (defn show-players [players]
   [:div
-    (doall (for [x players] [:p x]))])
+    (doall (for [x players] [:p {:key x} x]))])
 
-(defn server-display [nowtime address starttime completed players]
-  (def mtime (if starttime (- (or completed (quot @nowtime 1000)) starttime) 0))
-  [:li.hor.card.serveritem
+(defn delete-server [id]
+  (go (let [response (<! (http/post
+                          (str httpserver-base-address "client/deleteserver")
+                          {:with-credentials? false :form-params {:id id}}))])
+    (callback)))
+
+(defn new-server [address]
+  (go (let [response (<! (http/post
+                          (str httpserver-base-address "client/newserver")
+                          {:with-credentials? false :form-params {:address address}}))])
+    (callback)))
+
+(defn server-display [nowtime address starttime completed players id]
+  (def mtime (if (= 0 starttime) 0
+               (- (if (= 0 completed) (quot @nowtime 1000) completed) starttime)))
+  [:li.hor.card.serveritem {:key id}
    [:p address + server-base-address]
    [clock-component mtime]
-   (if players (show-players players) [:button.outline.delete "-"])])
+   (if players (show-players players) [:button.outline.delete {:on-click #(delete-server id)} "-"])])
+
 
 (defn add-button []
-  [:button.outline.add "+"])
+  [:button.outline.add {:on-click #(new-server "speedrun")} "+"])
 
 (defn nav-bar [page]
   [:div.card.marg-y.nav
@@ -57,37 +62,49 @@
 
 
 (defn servers-display-current [time data]
-  (doall (for [x (data :servers) :when (not (x :completed))]
-          [server-display time (x :address) (x :starttime) (x :completed) nil])))
+  (doall (for [x (data :servers) :when (= 0 (x :completed))]
+          [server-display time (x :address) (x :starttime) (x :completed) nil (x :id)])))
 (defn servers-display-past [time data]
   (doall (for [x (sort-by #(- (% :completed) (% :starttime)) (data :servers))
-               :when (x :completed)]
-          [server-display time (x :address) (x :starttime) (x :completed) (x :people)])))
+               :when (not (= 0 (x :completed)))]
+          [server-display time (x :address) (x :starttime) (x :completed) (x :people) (x :id)])))
 
 (let [time (r/atom (.now js/Date))
-      page (r/atom :home)]
+      page (r/atom :home)
+      data (r/atom {:servers []})]
+
   (js/setInterval (fn [] (print @time) (reset! time (.now js/Date))) 1000)
-  (print (data :servers))
-  (defn home-page []
+  (defn update-data []
+    (go (let [response (<! (http/get
+                            (str httpserver-base-address "client/data")
+                            {:with-credentials? false}))]
+          (print (:body response))
+          (reset! data (:body response)))))
+
+  (js/setInterval (fn [] (update-data)) 5000)
+  (update-data)
+  (set! callback update-data)
+
+  (defn home-page [data]
       (fn []
         [:div.ver.cent [:h1 "Minecraft Speedrun Manager"]
          (nav-bar page)
          [:ul.marg-x.serverlist
-          (servers-display-current time data)]
+          (servers-display-current time @data)]
          (add-button)]))
 
-  (defn score-page []
+  (defn score-page [data]
     (fn []
       [:div.ver.cent [:h1 "Minecraft Speedrun History"]
        (nav-bar page)
        [:ul.marg-x.serverlist
-        (servers-display-past time data)]]))
+        (servers-display-past time @data)]]))
 
   (defn main-page []
     [:div.all.dark
       (cond
-        (= @page :home) [home-page]
-        (= @page :score) [score-page])]))
+        (= @page :home) [home-page data]
+        (= @page :score) [score-page data])]))
 
 
 ;; -------------------------
