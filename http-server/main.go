@@ -13,12 +13,15 @@ type Speedrun struct {
 	People    []string `json:"people"`
 }
 
+type ServerResponse struct {
+	Speedruns []Speedrun `json:"servers"`
+}
+
 func hello(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "hello\n")
 }
 
 func main() {
-
 	http.HandleFunc("/client/data", hello)
 	http.ListenAndServe(":8000", nil)
 }
