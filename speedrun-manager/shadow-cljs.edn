@@ -1,0 +1,13 @@
+{:source-paths ["src"]
+ :dependencies [[binaryage/devtools "1.0.2"]
+                [nrepl "0.8.3"]
+                [cljs-http "0.1.46"]
+                [reagent "1.0.0"]]
+ :builds       {:app {:target     :browser
+                      :output-dir "public/js"
+                      :asset-path "/js"
+                      :modules    {:app {:entries [speedrun-manager.core]}}
+                      :devtools   {:after-load speedrun-manager.core/mount-root}}}
+
+ :dev-http     {3000 {:root    "public"
+                      :handler user/app}}}

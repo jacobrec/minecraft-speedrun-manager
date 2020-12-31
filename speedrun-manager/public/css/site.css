@@ -1,0 +1,139 @@
+html, body, .all {
+    width: 100vw;
+    height: 100vw;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    --color-foreground: white;
+    --color-background1: black;
+    --color-background2: #202020;
+    color: var(--color-foreground);
+    background-color: var(--color-background1);
+}
+.dark {
+    --color-foreground: white;
+    --color-background1: black;
+    --color-background2: #202020;
+}
+.light {
+    --color-foreground: black;
+    --color-background1: white;
+    --color-background2: #ccc;
+}
+a {
+    color: var(--color-foreground);
+}
+
+.hor{
+    display: flex;
+    flex-direction: row;
+}
+.ver{
+    display: flex;
+    flex-direction: column;
+}
+.spread{
+    justify-content: space-between;
+    align-items: center;
+}
+.drift{
+    justify-content: space-evenly;
+    align-items: center;
+}
+.cent{
+    justify-content: space-around;
+    align-items: center;
+}
+.wide{
+    width: 100%;
+}
+.tall{
+    height: 100%;
+}
+.marg{
+    margin: 10%;
+}
+.marg-x{
+    margin: 0 10%;
+}
+.marg-y{
+    margin: 20px 0;
+}
+.pad{
+    padding: 10%;
+}
+.pad-x{
+    padding: 0 10%;
+}
+.pad-y{
+    padding: 10% 0;
+}
+.card{
+    border-radius: 3px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    background-color: var(--color-background2);
+    color: white;
+}
+.card:hover{
+    box-shadow: 0 16px 32px 0 rgba(0,0,0,0.2);
+}
+
+hr {
+    width: 100%;
+    border: 1px solid #202020;
+}
+ul{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.outline {
+    background: none;
+    border: 3px solid var(--color-foreground);
+    color: var(--color-foreground);
+    border-radius: 3px;
+    font-weight: bold;
+}
+.delete {
+    width: 80px;
+    height: 40px;
+    font-size: 20px;
+}
+.delete:hover {
+    background-color: #ff3344;
+    border: 3px solid #ff3344;
+}
+
+.add {
+    width: 80px;
+    height: 80px;
+    border-radius: 100%;
+    font-size: 40px;
+    text-align: center;
+}
+.add:hover {
+    background-color: #007711;
+    border: 3px solid #007711;
+}
+
+.serverlist {
+    overflow-y: auto;
+    max-height: 80vh;
+}
+.serveritem {
+    color: var(--color-foreground);
+    margin-bottom: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr;
+    align-items: center;
+    justify-items: center;
+}
+
+.nav {
+    padding: 20px;
+}
