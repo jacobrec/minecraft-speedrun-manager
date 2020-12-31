@@ -18,6 +18,7 @@ type ServerResponse struct {
 }
 
 func hello(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "hello\n")
 }
 
